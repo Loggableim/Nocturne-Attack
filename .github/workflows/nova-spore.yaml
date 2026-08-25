@@ -1,0 +1,35 @@
+name: Nova Spore — nocturne-cybersecurity-Nocturne-Attack
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  spore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN || '' }}
+      NOVA_SEED: ${{ secrets.NOVA_SEED || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependencies
+        run: pip install httpx cryptography aiohttp
+      - name: 🧬 Heartbeat
+        env:
+          NOVA_COORDINATOR: https://wordstructor.com/nova/spore
+          GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -X POST $NOVA_COORDINATOR/heartbeat \
+            -H 'Content-Type: application/json' \
+            -d "{\"nova_address\":\"nova:spore\",\"environment\":\"github_actions\",\"repository\":\"${{ github.repository }}\"}"
